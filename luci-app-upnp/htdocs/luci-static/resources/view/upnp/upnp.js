@@ -212,10 +212,15 @@ return view.extend({
 		s.taboption('advanced', form.Flag, 'log_output', _('Enable additional logging'),
 			_('Puts extra debugging information into the system log'));
 
-		o = s.taboption('advanced', form.Value, 'max_lifetime', _('Default lease time'),
-			_('Default lifetime for port mappings in seconds (0 = no limit)'));
-		o.datatype = 'uinteger';
-		o.placeholder = '0';
+		o = s.taboption('advanced', form.Value, 'upnp_max_lifetime', _('UPnP IGD max lease time'),
+			_('Maximum lifetime for UPnP IGD port mappings in seconds (120-604800)'));
+		o.datatype = 'range(120,604800)';
+		o.placeholder = '3600';
+
+		o = s.taboption('advanced', form.Value, 'max_lifetime', _('PCP max lease time'),
+			_('Maximum lifetime for PCP port mappings in seconds (120-604800)'));
+		o.datatype = 'range(120,604800)';
+		o.placeholder = '604800';
 
 		o = s.taboption('advanced', form.Value, 'clean_ruleset_interval', _('Clean interval'),
 			_('Interval in seconds to check and clean expired rules'));

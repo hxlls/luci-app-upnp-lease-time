@@ -269,17 +269,25 @@ msgid "Use %s"
 msgstr "使用 %s"
 
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:216
-msgid "Default lease time"
-msgstr "默认有效时间"
+msgid "UPnP IGD max lease time"
+msgstr "UPnP IGD 最大有效时间"
 
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:217
-msgid "Default lifetime for port mappings in seconds (0 = no limit)"
-msgstr "端口映射的默认有效时间，单位为秒（0 = 无限制）"
+msgid "Maximum lifetime for UPnP IGD port mappings in seconds (120-604800)"
+msgstr "UPnP IGD 端口映射的最大有效时间，单位为秒（120-604800）"
 
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:221
+msgid "PCP max lease time"
+msgstr "PCP 最大有效时间"
+
+#: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:222
+msgid "Maximum lifetime for PCP port mappings in seconds (120-604800)"
+msgstr "PCP 端口映射的最大有效时间，单位为秒（120-604800）"
+
+#: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:226
 msgid "Clean interval"
 msgstr "清理间隔"
 
-#: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:222
+#: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:227
 msgid "Interval in seconds to check and clean expired rules"
 msgstr "检查和清理过期规则的时间间隔（秒）"

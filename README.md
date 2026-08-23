@@ -12,25 +12,26 @@
 
 ### 1. 修改 miniupnpd 下载源
 
-编辑 `feeds.conf.default`，添加：
-
-```
-src-git-miniupnpd https://github.com/hxlls/miniupnpd-igd-max-lifetime.git
-```
-
-或者修改 `feeds/packages/net/miniupnpd/Makefile`：
+编辑 `feeds/packages/net/miniupnpd/Makefile`：
 
 ```makefile
-# 原始
-PKG_SOURCE_URL:=https://github.com/miniupnp/miniupnp/releases/download/miniupnpd_$(subst .,_,$(PKG_VERSION))
-
 # 修改为
 PKG_SOURCE_URL:=https://github.com/hxlls/miniupnpd-igd-max-lifetime.git
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=master
+
+# 删除以下行
+# PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+# PKG_HASH:=...
 ```
 
-### 2. 复制 luci-app-upnp
+### 2. 删除补丁目录
+
+```bash
+rm -rf feeds/packages/net/miniupnpd/patches
+```
+
+### 3. 复制 luci-app-upnp
 
 ```bash
 git clone https://github.com/hxlls/luci-app-upnp-lease-time.git
@@ -39,7 +40,7 @@ cp -r luci-app-upnp /path/to/openwrt/feeds/luci/applications/
 cp miniupnpd/files/* /path/to/openwrt/feeds/packages/net/miniupnpd/files/
 ```
 
-### 3. 更新 feeds 并编译
+### 4. 更新 feeds 并编译
 
 ```bash
 ./scripts/feeds update -a
@@ -83,7 +84,7 @@ ubus call luci.upnp get_status
 | 仓库 | 说明 |
 |------|------|
 | [luci-app-upnp-lease-time](https://github.com/hxlls/luci-app-upnp-lease-time) | LuCI 应用和配置文件 |
-| [miniupnpd-igd-max-lifetime](https://github.com/hxlls/miniupnpd-igd-max-lifetime) | 修改后的 miniupnpd 源码 |
+| [miniupnpd-igd-max-lifetime](https://github.com/hxlls/miniupnpd-igd-max-lifetime) | 修改后的 miniupnpd 完整源码 |
 
 ## 基于
 

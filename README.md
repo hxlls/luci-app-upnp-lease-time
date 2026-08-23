@@ -8,14 +8,19 @@
 # 1. 克隆本仓库
 git clone https://github.com/hxlls/luci-app-upnp-lease-time.git
 
-# 2. 一键部署
-cd luci-app-upnp-lease-time
-bash deploy.sh /path/to/openwrt
-
-# 3. 编译
+# 2. 更新 feeds（下载原始包）
 cd /path/to/openwrt
 ./scripts/feeds update -a
+
+# 3. 替换为修改后的包
+cd /path/to/luci-app-upnp-lease-time
+bash deploy.sh /path/to/openwrt
+
+# 4. 安装 feeds
+cd /path/to/openwrt
 ./scripts/feeds install -a
+
+# 5. 编译
 make package/feeds/packages/miniupnpd/compile V=s
 ```
 
@@ -39,18 +44,6 @@ make package/feeds/packages/miniupnpd/compile V=s
 uci set upnpd.config.upnp_max_lifetime=3600
 uci commit upnpd
 /etc/init.d/miniupnpd restart
-```
-
-## 仓库结构
-
-```
-luci-app-upnp-lease-time/
-├── luci-app-upnp/      # LuCI 应用
-├── miniupnpd/          # OpenWrt miniupnpd 包（已修改）
-│   ├── Makefile        # 指向 GitHub 下载修改后的源码
-│   └── files/          # 配置文件
-├── deploy.sh           # 部署脚本
-└── README.md
 ```
 
 ## 相关仓库

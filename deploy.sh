@@ -21,19 +21,13 @@ MINIUPNPD_DIR="$OPENWRT_DIR/feeds/packages/net/miniupnpd"
 echo "1. 复制 luci-app-upnp..."
 cp -rf "$SCRIPT_DIR/luci-app-upnp" "$OPENWRT_DIR/feeds/luci/applications/"
 
-# 2. 备份原始 miniupnpd
-echo "2. 备份原始 miniupnpd..."
-if [ -d "$MINIUPNPD_DIR/files" ]; then
-    cp -rf "$MINIUPNPD_DIR/files" "$MINIUPNPD_DIR/files.bak"
-fi
+# 2. 复制配置文件
+echo "2. 复制 miniupnpd 配置文件..."
+cp -f "$SCRIPT_DIR/miniupnpd-files/miniupnpd.init" "$MINIUPNPD_DIR/files/"
+cp -f "$SCRIPT_DIR/miniupnpd-files/upnpd.config" "$MINIUPNPD_DIR/files/"
 
-# 3. 复制 miniupnpd 配置文件
-echo "3. 复制 miniupnpd 配置文件..."
-cp -f "$SCRIPT_DIR/miniupnpd/files/miniupnpd.init" "$MINIUPNPD_DIR/files/"
-cp -f "$SCRIPT_DIR/miniupnpd/files/upnpd.config" "$MINIUPNPD_DIR/files/"
-
-# 4. 修改 Makefile 指向 GitHub
-echo "4. 修改 Makefile..."
+# 3. 修改 Makefile
+echo "3. 修改 Makefile 下载地址..."
 cd "$MINIUPNPD_DIR"
 if [ -f Makefile ]; then
     # 备份
@@ -52,8 +46,8 @@ if [ -f Makefile ]; then
     sed -i '/PKG_HASH:=/d' Makefile
 fi
 
-# 5. 删除补丁目录
-echo "5. 删除补丁目录..."
+# 4. 删除补丁目录
+echo "4. 删除补丁目录..."
 rm -rf "$MINIUPNPD_DIR/patches"
 
 echo ""

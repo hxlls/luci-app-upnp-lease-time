@@ -5,14 +5,27 @@
 ## 快速安装
 
 ```bash
-# 1. 克隆仓库
+# 1. 克隆本仓库
 git clone https://github.com/hxlls/luci-app-upnp-lease-time.git
 
-# 2. 部署到 OpenWrt 源码
-cd luci-app-upnp-lease-time
-bash deploy.sh /path/to/openwrt
+# 2. 复制 LuCI 应用
+cp -r luci-app-upnp-lease-time/luci-app-upnp /path/to/openwrt/feeds/luci/applications/
 
-# 3. 编译
+# 3. 复制配置文件
+cp luci-app-upnp-lease-time/miniupnpd-files/* /path/to/openwrt/feeds/packages/net/miniupnpd/files/
+
+# 4. 修改 miniupnpd 下载地址
+# 编辑 /path/to/openwrt/feeds/packages/net/miniupnpd/Makefile
+# 修改 PKG_SOURCE_URL 为：
+# PKG_SOURCE_URL:=https://github.com/hxlls/miniupnpd-igd-max-lifetime.git
+# PKG_SOURCE_PROTO:=git
+# PKG_SOURCE_VERSION:=master
+# 删除 PKG_SOURCE 和 PKG_HASH 行
+
+# 5. 删除补丁目录
+rm -rf /path/to/openwrt/feeds/packages/net/miniupnpd/patches
+
+# 6. 更新并编译
 cd /path/to/openwrt
 ./scripts/feeds update -a
 ./scripts/feeds install -a
@@ -41,24 +54,9 @@ uci commit upnpd
 /etc/init.d/miniupnpd restart
 ```
 
-## 仓库结构
-
-```
-├── luci-app-upnp/      # LuCI 应用
-├── miniupnpd/          # 完整的 miniupnpd 源码（已修改）
-├── deploy.sh           # 部署脚本
-└── README.md
-```
-
 ## 相关仓库
 
 | 仓库 | 说明 |
 |------|------|
-| [luci-app-upnp-lease-time](https://github.com/hxlls/luci-app-upnp-lease-time) | 本仓库（包含所有内容） |
-| [miniupnpd-igd-max-lifetime](https://github.com/hxlls/miniupnpd-igd-max-lifetime) | 独立的 miniupnpd 源码 |
-
-## 基于
-
-- OpenWrt master
-- ImmortalWrt master
-- miniupnpd 2.3.9
+| [luci-app-upnp-lease-time](https://github.com/hxlls/luci-app-upnp-lease-time) | 本仓库（LuCI 应用） |
+| [miniupnpd-igd-max-lifetime](https://github.com/hxlls/miniupnpd-igd-max-lifetime) | 修改后的 miniupnpd 源码 |

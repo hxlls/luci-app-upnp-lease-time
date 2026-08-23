@@ -1,5 +1,5 @@
 #!/bin/bash
-# luci-app-upnp 有效时间功能部署脚本
+# UPnP 有效时间功能部署脚本
 
 set -e
 
@@ -7,7 +7,6 @@ OPENWRT_DIR="${1:-.}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 echo "=== 部署 UPnP 有效时间功能 ==="
-echo "目标目录: $OPENWRT_DIR"
 
 # 检查目录
 if [ ! -d "$OPENWRT_DIR/feeds/packages/net/miniupnpd" ]; then
@@ -18,33 +17,50 @@ fi
 
 MINIUPNPD_DIR="$OPENWRT_DIR/feeds/packages/net/miniupnpd"
 
-# 复制 luci-app-upnp
-echo "复制 luci-app-upnp..."
+# 1. 复制 luci-app-upnp
+echo "1. 复制 luci-app-upnp..."
 cp -rf "$SCRIPT_DIR/luci-app-upnp" "$OPENWRT_DIR/feeds/luci/applications/"
 
-# 复制 miniupnpd 配置文件
-echo "复制 miniupnpd 配置文件..."
+# 2. 备份原始 miniupnpd
+echo "2. 备份原始 miniupnpd..."
+if [ -d "$MINIUPNPD_DIR/files" ]; then
+    cp -rf "$MINIUPNPD_DIR/files" "$MINIUPNPD_DIR/files.bak"
+fi
+
+# 3. 复制 miniupnpd 配置文件
+echo "3. 复制 miniupnpd 配置文件..."
 cp -f "$SCRIPT_DIR/miniupnpd/files/miniupnpd.init" "$MINIUPNPD_DIR/files/"
 cp -f "$SCRIPT_DIR/miniupnpd/files/upnpd.config" "$MINIUPNPD_DIR/files/"
 
-# 创建补丁文件
-echo "创建补丁文件..."
-mkdir -p "$MINIUPNPD_DIR/patches"
+# 4. 修改 Makefile 指向 GitHub
+echo "4. 修改 Makefile..."
+cd "$MINIUPNPD_DIR"
+if [ -f Makefile ]; then
+    # 备份
+    cp Makefile Makefile.bak
+    
+    # 修改下载源
+    sed -i 's|PKG_SOURCE_URL:=https://github.com/miniupnp/miniupnp/releases/download/miniupnpd_.*|PKG_SOURCE_URL:=https://github.com/hxlls/miniupnpd-igd-max-lifetime.git|' Makefile
+    
+    # 添加 git 协议支持（如果不存在）
+    if ! grep -q "PKG_SOURCE_PROTO" Makefile; then
+        sed -i '/PKG_SOURCE_URL:=https:\/\/github.com\/hxlls\/miniupnpd-igd-max-lifetime.git/a\PKG_SOURCE_PROTO:=git\nPKG_SOURCE_VERSION:=master' Makefile
+    fi
+    
+    # 删除不需要的行
+    sed -i '/PKG_SOURCE:=.*tar.gz/d' Makefile
+    sed -i '/PKG_HASH:=/d' Makefile
+fi
 
-# 生成补丁
-cd "$SCRIPT_DIR/miniupnpd/src"
-diff -u /dev/null options.h | sed 's|/dev/null|a/options.h|;s|/dev/null|b/options.h|' > /dev/null 2>&1 || true
+# 5. 删除补丁目录
+echo "5. 删除补丁目录..."
+rm -rf "$MINIUPNPD_DIR/patches"
 
-# 直接复制源码文件作为参考（不推荐）
-echo "注意: 需要手动修改 miniupnpd 源码"
-echo "参考文件位置: $SCRIPT_DIR/miniupnpd/src/"
-echo ""
-echo "需要修改的文件:"
-echo "  - options.h: 添加 UPNPUPNPMAXLIFETIME 枚举"
-echo "  - options.c: 添加 upnp_max_lifetime 配置解析"
-echo "  - upnpglobalvars.h: 添加 upnp_max_lifetime 声明"
-echo "  - upnpglobalvars.c: 添加 upnp_max_lifetime 定义"
-echo "  - miniupnpd.c: 添加配置解析逻辑"
-echo "  - upnpsoap.c: 修改有效时间限制"
 echo ""
 echo "=== 部署完成 ==="
+echo ""
+echo "现在可以编译了:"
+echo "  cd $OPENWRT_DIR"
+echo "  ./scripts/feeds update -a"
+echo "  ./scripts/feeds install -a"
+echo "  make package/feeds/packages/miniupnpd/compile V=s"

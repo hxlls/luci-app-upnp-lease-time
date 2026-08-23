@@ -9,46 +9,21 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 echo "=== 部署 UPnP 有效时间功能 ==="
 
 # 检查目录
-if [ ! -d "$OPENWRT_DIR/feeds/packages/net/miniupnpd" ]; then
+if [ ! -d "$OPENWRT_DIR/feeds/packages/net" ]; then
     echo "错误: 找不到 OpenWrt 源码目录"
     echo "用法: bash deploy.sh /path/to/openwrt"
     exit 1
 fi
 
-MINIUPNPD_DIR="$OPENWRT_DIR/feeds/packages/net/miniupnpd"
+# 1. 删除原来的包
+echo "1. 删除原来的包..."
+rm -rf "$OPENWRT_DIR/feeds/luci/applications/luci-app-upnp"
+rm -rf "$OPENWRT_DIR/feeds/packages/net/miniupnpd"
 
-# 1. 复制 luci-app-upnp
-echo "1. 复制 luci-app-upnp..."
-cp -rf "$SCRIPT_DIR/luci-app-upnp" "$OPENWRT_DIR/feeds/luci/applications/"
-
-# 2. 复制配置文件
-echo "2. 复制 miniupnpd 配置文件..."
-cp -f "$SCRIPT_DIR/miniupnpd-files/miniupnpd.init" "$MINIUPNPD_DIR/files/"
-cp -f "$SCRIPT_DIR/miniupnpd-files/upnpd.config" "$MINIUPNPD_DIR/files/"
-
-# 3. 修改 Makefile
-echo "3. 修改 Makefile 下载地址..."
-cd "$MINIUPNPD_DIR"
-if [ -f Makefile ]; then
-    # 备份
-    cp Makefile Makefile.bak
-    
-    # 修改下载源
-    sed -i 's|PKG_SOURCE_URL:=https://github.com/miniupnp/miniupnp/releases/download/miniupnpd_.*|PKG_SOURCE_URL:=https://github.com/hxlls/miniupnpd-igd-max-lifetime.git|' Makefile
-    
-    # 添加 git 协议支持（如果不存在）
-    if ! grep -q "PKG_SOURCE_PROTO" Makefile; then
-        sed -i '/PKG_SOURCE_URL:=https:\/\/github.com\/hxlls\/miniupnpd-igd-max-lifetime.git/a\PKG_SOURCE_PROTO:=git\nPKG_SOURCE_VERSION:=master' Makefile
-    fi
-    
-    # 删除不需要的行
-    sed -i '/PKG_SOURCE:=.*tar.gz/d' Makefile
-    sed -i '/PKG_HASH:=/d' Makefile
-fi
-
-# 4. 删除补丁目录
-echo "4. 删除补丁目录..."
-rm -rf "$MINIUPNPD_DIR/patches"
+# 2. 复制新的包
+echo "2. 复制新的包..."
+cp -r "$SCRIPT_DIR/luci-app-upnp" "$OPENWRT_DIR/feeds/luci/applications/"
+cp -r "$SCRIPT_DIR/miniupnpd" "$OPENWRT_DIR/feeds/packages/net/"
 
 echo ""
 echo "=== 部署完成 ==="
